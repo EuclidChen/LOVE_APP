@@ -170,8 +170,6 @@ def ai_generate_question(level: str, context: str, recent_questions: list[str], 
 - 只輸出一題、單行
 - 20~60 字
 - 以問號結尾
-- 優先「具體好回答」：帶畫面/例子/二選一
-- 若怕答不上來，可在同一行用（…）給一句小台階
 """.strip()
 
     resp = get_client().responses.create(
