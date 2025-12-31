@@ -50,11 +50,30 @@
     <section id="page-level" class="page">
       <h1>3) 選擇題目等級</h1>
 
-      <div class="levels">
-        <button class="btn level" data-level="A">A 破冰</button>
-        <button class="btn level" data-level="B">B 深入</button>
-        <button class="btn level" data-level="C">C 更深</button>
-        <button class="btn level" data-level="D">D 最深</button>
+
+      <div class="level-wheel" aria-label="選擇題目等級">
+        <button class="wheel-btn wheel-a" data-level="A" aria-label="A 破冰">
+          <span class="wheel-letter">A</span>
+          <span class="wheel-sub">破冰</span>
+        </button>
+
+        <button class="wheel-btn wheel-b" data-level="B" aria-label="B 深入">
+          <span class="wheel-letter">B</span>
+          <span class="wheel-sub">深入</span>
+        </button>
+
+        <button class="wheel-btn wheel-c" data-level="C" aria-label="C 更深">
+          <span class="wheel-letter">C</span>
+          <span class="wheel-sub">更深</span>
+        </button>
+
+        <button class="wheel-btn wheel-d" data-level="D" aria-label="D 最深">
+          <span class="wheel-letter">D</span>
+          <span class="wheel-sub">最深</span>
+        </button>
+
+  <!-- 中心點（視覺更像圓餅） -->
+        <div class="wheel-center" aria-hidden="true"></div>
       </div>
 
       <div class="card small">

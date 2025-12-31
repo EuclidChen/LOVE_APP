@@ -64,7 +64,11 @@ h1, h2, h3{
 
 /* 輸入框（同時支援 class=input 與 type=text） */
 .input,
+
 input[type="text"], textarea{
+  font-size: 16px;         /* ✅ iOS 不會自動放大 */
+  line-height: 1.3;
+  touch-action: manipulation;
   width: 100%;
   box-sizing: border-box;
   padding: 14px 14px;
@@ -226,4 +230,109 @@ textarea:focus{
 /* ✅ 避免按鈕壓到內容：題目頁上方留一點空間 */
 #page-question .q-layout{
   margin-top: 42px;
+}
+/* ===== Level Wheel (大尺寸圓形四象限) ===== */
+.level-wheel{
+  width: min(420px, 92vw);         /* ✅ 更大尺寸 */
+  aspect-ratio: 1 / 1;
+  margin: 16px auto 10px;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+
+  border-radius: 50%;
+  overflow: hidden;
+
+  border: 4px solid #111;          /* ✅ 外框更粗 */
+  background: #fff;
+  box-shadow: 0 16px 40px rgba(17,24,39,.12);
+  position: relative;
+}
+
+/* 十字分隔線 */
+.level-wheel::before,
+.level-wheel::after{
+  content: "";
+  position: absolute;
+  background: #111;
+  opacity: .85;
+  z-index: 2;
+}
+.level-wheel::before{
+  width: 4px;
+  top: 0; bottom: 0;
+  left: 50%;
+  transform: translateX(-2px);
+}
+.level-wheel::after{
+  height: 4px;
+  left: 0; right: 0;
+  top: 50%;
+  transform: translateY(-2px);
+}
+
+/* 中心點（讓圓餅更像切四塊） */
+.wheel-center{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  background: #111;
+  border-radius: 50%;
+  z-index: 3;
+}
+
+/* 四象限按鈕 */
+.wheel-btn{
+  border: 0;
+  background: #fff;
+  cursor: pointer;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+  color: #111;
+  font-weight: 900;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  position: relative;
+  z-index: 1;
+}
+
+/* 觸控回饋 */
+.wheel-btn:active{
+  transform: scale(0.985);
+}
+
+/* 大字母 */
+.wheel-letter{
+  font-size: clamp(44px, 9vw, 64px);  /* ✅ 自適應更大 */
+  line-height: 1;
+}
+
+/* 小副標 */
+.wheel-sub{
+  font-size: 16px;
+  font-weight: 800;
+  opacity: .75;
+}
+
+/* 四象限淡差異（黑白系） */
+.wheel-a{ background: #ffffff; }
+.wheel-b{ background: #f4f5f7; }
+.wheel-c{ background: #f4f5f7; }
+.wheel-d{ background: #ffffff; }
+
+/* 桌機 hover */
+@media (hover:hover){
+  .wheel-btn:hover{
+    filter: brightness(.97);
+  }
 }

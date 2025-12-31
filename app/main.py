@@ -13,6 +13,9 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from openai import OpenAI
+import traceback
+
+
 
 
 # =========================
@@ -172,7 +175,7 @@ def ai_generate_question(level: str, context: str, recent_questions: list[str], 
 """.strip()
 
     resp = get_client().responses.create(
-        model="gpt-5-mini",
+        model="gpt-5.2",
         input=[
             {"role": "system", "content": system},
             {"role": "user", "content": user},
@@ -205,6 +208,8 @@ def start_game(req: StartRequest):
 
 @app.post("/api/question", response_model=QuestionResponse)
 def next_question(req: QuestionRequest):
+    print("KEY in request startswith:", (os.environ.get("OPENAI_API_KEY") or "")[:7])
+
     sess = SESSIONS.get(req.session_id)
 
     if not sess:
@@ -220,16 +225,30 @@ def next_question(req: QuestionRequest):
 
     try:
         if os.environ.get("OPENAI_API_KEY"):
+            print("USING OPENAI")   
             recent_questions = (sess.get("history", []) if sess else []) + (req.history or [])
             recent_questions = dedupe_preserve_order(recent_questions)
             q = ai_generate_question(level=level, context=context, recent_questions=recent_questions)
+            q = f"【AI】{q}" 
         else:
+            print("USING BANK") 
             q = pick_question(level, context, used)
+            q = f"【BANK】{q}"
     except Exception:
+        import traceback
+        print("AI ERROR:", repr(e))
+        traceback.print_exc()
         q = pick_question(level, context, used)
+        q = f"【BANK】{q}"
 
     if sess:
         sess["history"].append(q)
 
     return QuestionResponse(level=level, question=q)
-
+@app.get("/api/debug")
+def debug():
+    key = os.environ.get("OPENAI_API_KEY") or ""
+    return {
+        "has_key": bool(key),
+        "key_prefix": key[:7],
+    }

@@ -80,7 +80,7 @@ function bindEvents() {
   });
 
   // Level -> Question
-  document.querySelectorAll(".btn.level").forEach(btn => {
+  document.querySelectorAll(".wheel-btn").forEach(btn => {
     btn.addEventListener("click", async () => {
       state.level = btn.dataset.level;
       showPage("question");
