@@ -51,7 +51,6 @@ class StartResponse(BaseModel):
 class QuestionRequest(BaseModel):
     session_id: str
     level: str  # "A" | "B" | "C" | "D"
-    mode: Optional[str] = "normal"
     action: Optional[str] = None  # "skip" | "done" | None
     history: list[str] = []       # 前端送過來的題目歷史（有順序）
 
@@ -95,12 +94,14 @@ QUESTION_BANK = {
     ],
 }
 
-LEVEL_DESC = {
-    "A": "破冰、輕鬆、可快速回答，句子短一點。",
-    "B": "稍微深入，聊到生活習慣、價值觀、小故事。",
-    "C": "更深入，聊到情緒、關係模式、重要轉折。",
-    "D": "最深入但不冒犯，聊到脆弱面、界線、人生觀與修復。",
+
+LEVEL_STYLE = {
+    "A": "破冰/暖身：超好答、短句、具體生活化。避免抽象大道理與逼問。",
+    "B": "好接續的深入題：聊習慣/偏好/價值觀，務必給台階。多用二選一或請舉一個小例子。",
+    "C": "更深入但不沉重：聊關係互動/內在想法/人生節奏，語氣自然像聊天，不要審問。",
+    "D": "最深入但溫柔：可觸及脆弱/界線/遺憾/修復；允許不答或輕描淡寫，不逼問隱私與創傷細節。",
 }
+
 
 
 # =========================
@@ -131,52 +132,53 @@ def dedupe_preserve_order(items: list[str]) -> list[str]:
     return out
 
 
-def pick_question(level: str, relationship: str, used: set[str]) -> str:
+def pick_question(level: str, context: str, used: set[str]) -> str:
     base_list = QUESTION_BANK.get(level, QUESTION_BANK["A"])
     candidates = [q for q in base_list if q not in used]
     if not candidates:
-        return f"（加碼題）以「{relationship}」為前提：{random.choice(base_list)}"
-    q = random.choice(candidates)
-    return f"（{relationship}）{q}"
+        return random.choice(base_list)  # 題庫用完就隨機，不要加前綴
+    return random.choice(candidates)     # 不要加（relationship）
 
 
-def ai_generate_question(level: str, relationship: str, recent_questions: list[str], mode: str) -> str:
-    # 最近題目（有順序），只取最後 12 題避免 prompt 太長
+
+def ai_generate_question(level: str, context: str, recent_questions: list[str], mode: str = "normal") -> str:
+    # 最近題目（有順序）
     recent = recent_questions[-12:]
     used_text = "\n".join([f"- {q}" for q in recent]) if recent else "（無）"
-    mode = (mode or "normal").lower()
-    mode_hint = "正式、溫和、有界線、不逼問。" if mode == "normal" else "酒局氛圍、更直接更敢問、可以更好笑一點，但仍尊重界線不冒犯。"
+
+    level_style = LEVEL_STYLE.get(level, "輕鬆、具體、好回答。")
+
     system = (
-        "你是一個卡牌對話遊戲的出題器。"
-        "你只能輸出『一題問題』，不要加任何前言、不要編號、不要解釋。"
-        "問題必須是繁體中文，且符合指定的深度等級。"
-        "問題要適合兩個人面對面互動，不要太長。"
-        "避免性暗示、仇恨、歧視、暴力、個資、犯罪教唆。"
-        "如果題目可能讓人不舒服，請改成更溫和、尊重界線的問法。"
+        "你是卡牌對話遊戲的出題器。"
+        "只輸出一題問題，不要前言、不要編號、不要解釋。"
+        "使用繁體中文，語氣像朋友聊天，不像面試。"
+        "避免性暗示、仇恨、歧視、暴力、個資。"
     )
 
     user = f"""
-遊戲者關係：{relationship}
-題目等級：{level}（{LEVEL_DESC.get(level, "")}）
-模式：{mode_hint}
+使用者輸入的關係/情境/主題（請依此出題）：{context}
+題目等級：{level}
+等級風格：{level_style}
 
-請產生 1 題新的問題，並且避免與以下題目重複或太相似：
+請產生 1 題新的問題，並避免與下列題目重複或太相似：
 {used_text}
 
-限制：
-- 20~60 字左右（不要太短也不要太長）
+規則：
+- 只輸出一題、單行
+- 20~60 字
 - 以問號結尾
-- 只輸出問題本身
+- 優先「具體好回答」：帶畫面/例子/二選一
+- 若怕答不上來，可在同一行用（…）給一句小台階
 """.strip()
 
     resp = get_client().responses.create(
-        model="gpt-4.1-mini",
+        model="gpt-5-mini",
         input=[
             {"role": "system", "content": system},
             {"role": "user", "content": user},
         ],
         temperature=0.9,
-        max_output_tokens=90,
+        max_output_tokens=80,
     )
 
     q = resp.output_text.strip().replace("\n", " ").strip()
@@ -185,14 +187,16 @@ def ai_generate_question(level: str, relationship: str, recent_questions: list[s
     return q
 
 
+
 # =========================
 # APIs
 # =========================
 @app.post("/api/start", response_model=StartResponse)
 def start_game(req: StartRequest):
     session_id = str(uuid4())
+    context = (req.relationship or "").strip() or "朋友"
     SESSIONS[session_id] = {
-        "relationship": (req.relationship or "").strip() or "朋友",
+        "context": context,
         "created_at": datetime.utcnow().isoformat(),
         "history": [],  # 這裡存有順序的題目歷史（AI 避免重複要靠它）
     }
@@ -203,34 +207,29 @@ def start_game(req: StartRequest):
 def next_question(req: QuestionRequest):
     sess = SESSIONS.get(req.session_id)
 
-    # 取得關係
-    relationship = (sess["relationship"] if sess else "朋友")
+    if not sess:
+        context = "朋友"
+        used = set(req.history or [])
+    else:
+        context = sess.get("context", "朋友")
+        used = set(sess.get("history", [])) | set(req.history or [])
 
-    # 整合「有順序」的歷史：後端 session history + 前端 history（都保留順序，然後去重）
-    sess_history = sess.get("history", []) if sess else []
-    merged_history = dedupe_preserve_order(sess_history + (req.history or []))
-
-    # level 正規化
     level = (req.level or "A").upper()
     if level not in ("A", "B", "C", "D"):
         level = "A"
 
-    # 先準備 used set 給 fallback 題庫用（快速排除重複）
-    used_set = set(merged_history)
-
-    # AI 出題（有 key 就走 AI，沒 key 或出錯就 fallback）
     try:
         if os.environ.get("OPENAI_API_KEY"):
-            q = ai_generate_question(level, relationship, merged_history, req.mode or "normal")
+            recent_questions = (sess.get("history", []) if sess else []) + (req.history or [])
+            recent_questions = dedupe_preserve_order(recent_questions)
+            q = ai_generate_question(level=level, context=context, recent_questions=recent_questions)
         else:
-            q = pick_question(level, relationship, used_set)
-    except Exception as e:
-        # 你需要 debug 時可以把這行打開看錯誤：
-        # print("AI error:", repr(e))
-        q = pick_question(level, relationship, used_set)
+            q = pick_question(level, context, used)
+    except Exception:
+        q = pick_question(level, context, used)
 
-    # 記錄到 session（保留順序）
     if sess:
         sess["history"].append(q)
 
     return QuestionResponse(level=level, question=q)
+

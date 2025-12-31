@@ -14,7 +14,6 @@ const state = {
   session_id: null,
   relationship: "",
   level: "A",
-  mode: "normal", // normal | party
   history: [],
 };
 
@@ -41,7 +40,6 @@ async function apiQuestion(level, action=null) {
       session_id: state.session_id,
       level,
       action,
-      mode: state.mode,
       history: state.history,
     })
   });
@@ -50,11 +48,11 @@ async function apiQuestion(level, action=null) {
 }
 
 async function loadNextQuestion(action=null) {
-  badgeLevel.textContent = state.level;
+  badgeLevel.textContent = `LEVEL ${state.level}`;
   questionText.textContent = "（載入中…）";
 
   const data = await apiQuestion(state.level, action);
-  badgeLevel.textContent = data.level;
+  badgeLevel.textContent = `LEVEL ${data.level}`;
   questionText.textContent = data.question;
 
   // 記錄題目（避免重複）
@@ -99,13 +97,6 @@ function bindEvents() {
   });
   document.getElementById("btn-done").addEventListener("click", async () => {
     await loadNextQuestion("done");
-  });
-  document.querySelectorAll(".btn.mode").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".btn.mode").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      state.mode = btn.dataset.mode; // normal / party
-    });
   });
 }
 

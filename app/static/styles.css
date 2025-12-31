@@ -1,143 +1,229 @@
+/* ===== Light Theme (白底) ===== */
 :root{
-  --bg:#0b0b0c;
-  --card:#141416;
-  --text:#f2f2f2;
-  --muted:#b7b7b7;
-  --line:#232327;
+  --bg: #f6f7fb;           /* 整體底色：淡灰白 */
+  --card: #ffffff;         /* 卡片底色 */
+  --text: #111827;         /* 主文字 */
+  --muted: #6b7280;        /* 次要文字 */
+  --border: #e5e7eb;       /* 邊框 */
+  --shadow: 0 10px 30px rgba(17,24,39,.08);
+  --primary: #111827;      /* 主按鈕底色 */
+  --primaryText: #ffffff;  /* 主按鈕文字 */
+  --btnGhostBg: #ffffff;
+  --btnGhostText: #111827;
 }
 
-*{ box-sizing:border-box; }
+html, body{ height: 100%; }
+
 body{
-  margin:0;
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial;
+  margin: 0;
   background: var(--bg);
   color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", Arial;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* App 容器置中 */
 .app{
   max-width: 520px;
   margin: 0 auto;
-  padding: 16px;
+  padding: 22px 18px 40px;
+  box-sizing: border-box;
 }
 
-.topbar{
-  padding: 12px 12px 18px;
-  border-bottom: 1px solid var(--line);
-  margin-bottom: 14px;
-}
-.brand{ font-size: 18px; font-weight: 700; }
-.sub{ font-size: 13px; color: var(--muted); margin-top: 4px; }
+/* Topbar */
+.topbar{ padding: 6px 0 14px; }
+.brand{ font-weight: 900; }
+.sub{ color: var(--muted); font-size: 12px; margin-top: 4px; }
 
-.page{ display:none; }
-.page.active{ display:block; }
+/* ===== Page routing (分頁顯示控制) ===== */
+.page { display: none; }
+.page.active { display: block; }
 
-h1{ font-size: 18px; margin: 10px 0 8px; }
-.hint{ color: var(--muted); margin: 0 0 12px; line-height:1.5; }
-
-.input{
-  width:100%;
-  padding: 14px 12px;
-  border-radius: 12px;
-  border: 1px solid var(--line);
-  background: #0f0f10;
-  color: var(--text);
-  outline: none;
-  margin-bottom: 12px;
-}
-
-.btn{
-  width: 100%;
-  padding: 13px 12px;
-  border-radius: 12px;
-  border: 1px solid var(--line);
-  background: #101012;
-  color: var(--text);
-  cursor: pointer;
-  font-weight: 650;
-}
-.btn + .btn{ margin-top: 10px; }
-
-.btn.primary{
-  background: #ffffff;
-  color: #0b0b0c;
-  border-color: #ffffff;
-}
-.btn.danger{
-  background: #241013;
-  border-color: #3b1418;
-}
-.btn.ghost{
-  width: auto;
-  padding: 10px 12px;
-  background: transparent;
-}
-
-.row{ display:flex; gap: 10px; margin-top: 12px; }
-.row .btn{ width: 100%; }
-.row.space-between{ justify-content: space-between; align-items: center; }
-
+/* 卡片樣式 */
 .card{
   background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 14px;
-  line-height: 1.6;
-}
-.card.small{ margin-top: 10px; }
-
-.levels{
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.levels .btn{ margin-top: 0; }
-
-.badge{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  background: #ffffff;
-  color: #0b0b0c;
-  font-weight: 800;
-}
-
-.question-card{
-  margin-top: 12px;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 14px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
   padding: 16px;
 }
-.q-title{
-  font-size: 12px;
-  color: var(--muted);
-  margin-bottom: 10px;
-}
-.q-text{
-  font-size: 18px;
-  line-height: 1.55;
-  font-weight: 700;
+.card.small{
+  padding: 12px 14px;
+  margin-top: 12px;
 }
 
-.footer-note{
-  margin-top: 14px;
+/* 標題/副標 */
+h1, h2, h3{
+  margin: 0 0 10px 0;
+  letter-spacing: .2px;
+}
+.muted, .hint, .sub{
   color: var(--muted);
-  font-size: 12px;
-  line-height: 1.6;
 }
-.modes{
-  display:flex;
-  gap:10px;
-  margin-top:10px;
+
+/* 輸入框（同時支援 class=input 與 type=text） */
+.input,
+input[type="text"], textarea{
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  outline: none;
 }
-.btn.mode{
-  width:100%;
+.input::placeholder,
+input[type="text"]::placeholder{
+  color: #9ca3af;
 }
-.btn.mode.active{
-  background:#ffffff;
-  color:#0b0b0c;
-  border-color:#ffffff;
+.input:focus,
+input[type="text"]:focus,
+textarea:focus{
+  border-color: #c7cdd6;
+  box-shadow: 0 0 0 4px rgba(17,24,39,.06);
+}
+
+/* 按鈕 */
+.btn{
+  border: 1px solid var(--border);
+  background: var(--btnGhostBg);
+  color: var(--btnGhostText);
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn.primary{
+  background: var(--primary);
+  color: var(--primaryText);
+  border-color: var(--primary);
+}
+.btn:active{ transform: translateY(1px); }
+
+/* Row */
+.row{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Levels：2x2 */
+.levels{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+.btn.level{
+  padding: 14px 12px;
+  border-radius: 16px;
+}
+
+/* =========================
+   題目頁：黑舞台 + 白卡 + LEVEL + 底部雙按鈕
+   ========================= */
+.q-layout{
+  background: #000;
+  border-radius: 18px;
+  padding: 18px 14px 16px;
+  position: relative;
+
+  min-height: calc(100vh - 140px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* 右上角：回到選擇難度 */
+.q-back{
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: transparent;
+  border: 0;
+  color: #fff;
+  font-weight: 800;
+  font-size: 13px;
+  text-decoration: underline;
+  padding: 6px 6px;
+}
+
+/* 中間大白卡 */
+.q-card{
+  background: #fff;
+  border: 3px solid #111;
+  border-radius: 0;
+  width: 100%;
+  min-height: 62vh;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 26px 18px;
+  box-sizing: border-box;
+}
+
+/* LEVEL 方框 */
+.q-level{
+  border: 3px solid #111;
+  padding: 14px 22px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  font-size: 28px;
+  margin-bottom: 26px;
+}
+
+/* 題目置中 */
+.q-center-text{
+  font-size: 32px;
+  font-weight: 900;
+  text-align: center;
+  line-height: 1.35;
+  padding: 0 12px;
+}
+
+/* 底部兩顆大按鈕 */
+.q-bottom{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+/* 大按鈕 */
+.q-btn{
+  background: #fff;
+  border: 3px solid #111;
+  border-radius: 0;
+  padding: 18px 12px;
+  font-size: 24px;
+  font-weight: 900;
+}
+.q-btn:active{ transform: translateY(1px); }
+/* 題目頁：右上角固定回到選擇難度（在黑舞台外） */
+.q-back-fixed{
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 10px);
+  right: 12px;
+  z-index: 9999;
+
+  background: rgba(255,255,255,.92);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+
+  font-weight: 900;
+  font-size: 13px;
+  color: #111;
+  box-shadow: 0 8px 20px rgba(17,24,39,.12);
+}
+
+/* ✅ 避免按鈕壓到內容：題目頁上方留一點空間 */
+#page-question .q-layout{
+  margin-top: 42px;
 }

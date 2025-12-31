@@ -16,7 +16,7 @@
   <div class="app">
     <header class="topbar">
       <div class="brand">深刻認識一個人</div>
-      <div class="sub">即時出題小遊戲（MVP）</div>
+      <div class="sub">即時出題小遊戲</div>
     </header>
 
     <!-- Page: Home -->
@@ -24,10 +24,8 @@
       <h1>1) 輸入遊戲者關係</h1>
       <p class="hint">例如：大學同學、陌生人、認識但不熟的人、前同事…</p>
 
-      <input id="relationship" class="input" placeholder="例如：大學同學" />
+      <input id="relationship" type="text" class="input" placeholder="例如：大學同學" />
       <button id="btn-start" class="btn primary">下一步</button>
-
-      <div class="footer-note">提示：這版先用假題庫跑流程，下一步再換成 AI 即時出題。</div>
     </section>
 
     <!-- Page: Rules -->
@@ -51,23 +49,13 @@
     <!-- Page: Level -->
     <section id="page-level" class="page">
       <h1>3) 選擇題目等級</h1>
+
       <div class="levels">
         <button class="btn level" data-level="A">A 破冰</button>
         <button class="btn level" data-level="B">B 深入</button>
         <button class="btn level" data-level="C">C 更深</button>
         <button class="btn level" data-level="D">D 最深</button>
       </div>
-      <div class="card small">
-        <div class="q-title">模式</div>
-        <div class="modes">
-            <button class="btn mode active" data-mode="normal">正式</button>
-            <button class="btn mode" data-mode="party">酒局</button>
-      </div>
-      <div class="hint" style="margin-top:8px;">
-    正式：溫和、有界線｜酒局：更直接、更敢問（仍避免冒犯）
-      </div>
-</div>
-
 
       <div class="card small">
         <div><b>目前關係：</b><span id="relationship-label"></span></div>
@@ -76,24 +64,23 @@
       <button class="btn" id="btn-back-rules">返回說明</button>
     </section>
 
-    <!-- Page: Question -->
+    <!-- Page: Question (你希望的卡片舞台版型) -->
     <section id="page-question" class="page">
-      <div class="row space-between">
-        <div class="badge" id="badge-level">A</div>
-        <button class="btn ghost" id="btn-to-level-2">回到選擇難度</button>
-      </div>
+      <button class="q-back-fixed" id="btn-to-level-2">回到選擇難度</button>
+      <div class="q-layout">
+        <div class="q-card">
+          <div class="q-level" id="badge-level">LEVEL A</div>
+          <div id="question-text" class="q-center-text">（載入中…）</div>
+        </div>
 
-      <div class="question-card">
-        <div class="q-title">題目</div>
-        <div id="question-text" class="q-text">（載入中…）</div>
-      </div>
-
-      <div class="row">
-        <button class="btn danger" id="btn-skip">放棄作答</button>
-        <button class="btn primary" id="btn-done">答題完成</button>
+        <div class="q-bottom">
+          <button class="q-btn" id="btn-done">答題完成</button>
+          <button class="q-btn" id="btn-skip">放棄作答</button>
+        </div>
       </div>
     </section>
   </div>
+
   <script>
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/static/sw.js");

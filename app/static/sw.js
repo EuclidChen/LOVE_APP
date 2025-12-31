@@ -1,6 +1,6 @@
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open("deepcard-v1").then((cache) => {
+    caches.open("deepcard-v3").then((cache) => {
       return cache.addAll([
         "/",
         "/static/styles.css",
